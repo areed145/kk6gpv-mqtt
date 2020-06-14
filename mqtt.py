@@ -3,7 +3,6 @@ from datetime import datetime
 from pymongo import MongoClient
 import json
 import os
-import sys
 
 
 def on_connect(client, userdata, flags, rc):
@@ -19,17 +18,17 @@ def on_message(client, userdata, msg):
     try:
         raw.insert_one(ins)
     except Exception:
-        sys.exit(1)
+        # sys.exit(1)
+        pass
 
 
 # MongoDB client
 client = MongoClient(os.environ["MONGODB_CLIENT"])
-
 db = client.iot
 raw = db.raw
 
 # Mosquitto client
-client = mqtt.Client()
+client = mqtt.Client(clean_session=False)
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect("broker.hivemq.com", 1883, 60)
