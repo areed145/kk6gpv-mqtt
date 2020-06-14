@@ -28,7 +28,7 @@ db = client.iot
 raw = db.raw
 
 # Mosquitto client
-client = mqtt.Client(clean_session=False)
+client = mqtt.Client(client_id="kk6gpv-mqtt", clean_session=False)
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect("broker.hivemq.com", 1883, 60)
