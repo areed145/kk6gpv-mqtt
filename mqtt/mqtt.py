@@ -9,7 +9,7 @@ class Mqtt:
     """Class for writing mqtt data to mongodb"""
 
     def init(self):
-        """Initialized the class"""
+        """Initialize the class"""
         client = MongoClient(os.environ["MONGODB_CLIENT"])
         db = client.iot
         self.db = db.raw
