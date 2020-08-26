@@ -20,7 +20,7 @@ class Mqtt:
         self.client = mqtt.Client(client_id="kk6gpv-mqtt", clean_session=False)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
-        self.client.on_disconnect = self.on_disconnect
+        # self.client.on_disconnect = self.on_disconnect
 
     def run(self):
         """Runs the class object"""
@@ -45,6 +45,7 @@ class Mqtt:
             pass
 
     def on_disconnect(self, client, userdata, rc):
+        """Exits when disconnected"""
         logging.error("exiting...")
         sys.exit(1)
 
