@@ -20,15 +20,25 @@ class Mqtt:
         self.db = db.raw
         self.fail_count = 0
         self.fail_max = 30
+        self.fail_init()
         self.run()
 
+    def fail_init(self):
+        """Initialize check for failure"""
+        self.fail_count = 0
+        with open("/healthy", "w") as fp:
+            fp.write("healthy")
+            pass
+
     def fail_check(self):
+        """Check for failure count"""
         self.fail_count += 1
         logging.warning(
             "couldn't connect {0} time(s)".format(str(self.fail_count))
         )
         if self.fail_count > self.fail_max - 1:
             logging.error("exiting...")
+            os.remove("/healthy")
             sys.exit(1)
 
     def run(self):
@@ -43,6 +53,7 @@ class Mqtt:
                 self.client.on_disconnect = self.on_disconnect
                 self.client.connect("broker.hivemq.com", 1883, 60)
                 self.client.loop_forever()
+                self.fail_init()
             except Exception:
                 time.sleep(2)
                 self.fail_check()
