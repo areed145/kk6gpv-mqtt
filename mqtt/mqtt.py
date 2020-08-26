@@ -3,6 +3,7 @@ from datetime import datetime
 from pymongo import MongoClient
 import json
 import os
+import time
 import sys
 import logging
 
@@ -17,20 +18,39 @@ class Mqtt:
         client = MongoClient(os.environ["MONGODB_CLIENT"])
         db = client.iot
         self.db = db.raw
-        self.client = mqtt.Client(client_id="kk6gpv-mqtt", clean_session=False)
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        # self.client.on_disconnect = self.on_disconnect
+        self.fail_count = 0
+        self.fail_max = 30
+        self.run()
+
+    def fail_check(self):
+        self.fail_count += 1
+        logging.warning(
+            "couldn't connect {0} time(s)".format(str(self.fail_count))
+        )
+        if self.fail_count > self.fail_max - 1:
+            logging.error("exiting...")
+            sys.exit(1)
 
     def run(self):
         """Runs the class object"""
-        self.client.connect("broker.hivemq.com", 1883, 60)
-        self.client.loop_forever()
+        while True:
+            try:
+                self.client = mqtt.Client(
+                    client_id="kk6gpv-mqtt", clean_session=False,
+                )
+                self.client.on_connect = self.on_connect
+                self.client.on_message = self.on_message
+                self.client.on_disconnect = self.on_disconnect
+                self.client.connect("broker.hivemq.com", 1883, 60)
+                self.client.loop_forever()
+            except Exception:
+                time.sleep(2)
+                self.fail_check()
 
     def on_connect(self, client, userdata, flags, rc):
         """Connects to the eventstream"""
-        print("Connected with result code" + str(rc))
-        client.subscribe("eventstream/raw")
+        logging.info("connected with result code {0}".format(str(rc)))
+        client.subscribe("eventstream/raw", 2)
 
     def on_message(self, client, userdata, msg):
         """Writes a each message to mongodb"""
@@ -45,11 +65,10 @@ class Mqtt:
             pass
 
     def on_disconnect(self, client, userdata, rc):
-        """Exits when disconnected"""
-        logging.error("exiting...")
-        sys.exit(1)
+        """Connects to the eventstream"""
+        logging.info("disconnected with result code {0}".format(str(rc)))
+        self.run()
 
 
 if __name__ == "__main__":
     mq = Mqtt()
-    mq.run()
