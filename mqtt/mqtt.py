@@ -3,6 +3,7 @@ from datetime import datetime
 from pymongo import MongoClient
 import json
 import os
+import sys
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +20,7 @@ class Mqtt:
         self.client = mqtt.Client(client_id="kk6gpv-mqtt", clean_session=False)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
+        self.client.on_disconnect = self.on_disconnect
 
     def run(self):
         """Runs the class object"""
@@ -41,6 +43,10 @@ class Mqtt:
             logging.info(ins)
         except Exception:
             pass
+
+    def on_disconnect(self, client, userdata, rc):
+        logging.error("exiting...")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
