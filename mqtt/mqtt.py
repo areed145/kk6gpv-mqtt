@@ -3,12 +3,15 @@ from datetime import datetime
 from pymongo import MongoClient
 import json
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 
 class Mqtt:
     """Class for writing mqtt data to mongodb"""
 
-    def init(self):
+    def __init__(self):
         """Initialize the class"""
         client = MongoClient(os.environ["MONGODB_CLIENT"])
         db = client.iot
@@ -35,10 +38,11 @@ class Mqtt:
         ins["timestamp_"] = datetime.utcnow()
         try:
             self.db.insert_one(ins)
+            logging.info(ins)
         except Exception:
             pass
 
 
 if __name__ == "__main__":
-    mqttc = Mqtt()
-    mqttc.run()
+    mq = Mqtt()
+    mq.run()
