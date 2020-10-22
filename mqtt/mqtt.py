@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-from datetime import datetime
+from datetime import datetime, timezone
 from pymongo import MongoClient
 import json
 import os
@@ -46,8 +46,7 @@ class Mqtt:
         while True:
             try:
                 self.client = mqtt.Client(
-                    client_id="kk6gpv-mqtt",
-                    clean_session=False,
+                    client_id="kk6gpv-mqtt", clean_session=False,
                 )
                 self.client.on_connect = self.on_connect
                 self.client.on_message = self.on_message
@@ -69,7 +68,7 @@ class Mqtt:
         message = msg.payload.decode("utf-8")
         message = json.loads(message)
         ins = message["event_data"]["new_state"]
-        ins["timestamp_"] = datetime.utcnow()
+        ins["timestamp_"] = datetime.now(timezone.utc)
         try:
             self.db.insert_one(ins)
             logging.info(ins)
