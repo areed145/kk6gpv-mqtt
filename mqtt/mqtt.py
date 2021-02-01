@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Mqtt:
-    """Class for writing mqtt data to mongodb"""
+    """Class for writing mqtt data to MongoDB"""
 
     def __init__(self):
         """Initialize the class"""
